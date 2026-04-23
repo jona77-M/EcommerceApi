@@ -1,12 +1,15 @@
 package com.ws101.EulinMalobago.EcommerceApi.service;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 
 import com.ws101.EulinMalobago.EcommerceApi.model.Product;
 
@@ -74,7 +77,8 @@ public class ProductService {
 		return productList.stream()
 				.filter(product -> product.getId().equals(id))
 				.findFirst()
-				.orElse(null);
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+						"Product not found with ID: " + id));
 	}
 
 	
@@ -131,9 +135,15 @@ public class ProductService {
 			throw new IllegalArgumentException("At least one product field is required for PATCH.");
 		}
 
+		Map<String, Object> normalizedChanges = new LinkedHashMap<>();
 		for (Map.Entry<String, Object> change : changes.entrySet()) {
+			String normalizedKey = "name".equals(change.getKey()) ? "productName" : change.getKey();
+			normalizedChanges.put(normalizedKey, change.getValue());
+		}
+
+		for (Map.Entry<String, Object> change : normalizedChanges.entrySet()) {
 			switch (change.getKey()) {
-				case "name" -> existingProduct.setProductName(asString(change.getValue(), "name"));
+				case "productName" -> existingProduct.setProductName(asString(change.getValue(), "productName"));
 				case "description" -> existingProduct.setDescription(asString(change.getValue(), "description"));
 				case "price" -> existingProduct.setPrice(asDouble(change.getValue(), "price"));
 				case "category" -> existingProduct.setCategory(asString(change.getValue(), "category"));
