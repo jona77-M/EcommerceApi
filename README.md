@@ -51,6 +51,70 @@ cd "d:\documents\SYSTEMS\WEB SYSTEM\final lab 7\EcommerceApi\EcommerceApi"
 http://localhost:8080
 ```
 
+## Git Branch Guide
+
+### Check Current Branches
+
+```powershell
+git branch
+```
+
+### Switch to Another Branch
+
+Switch to `master`:
+
+```powershell
+git switch master
+```
+
+Or switch to any existing branch:
+
+```powershell
+git switch branch-name
+```
+
+### Create a New Branch
+
+Create and switch to a new branch in one command:
+
+```powershell
+git switch -c new-branch-name
+```
+
+Example:
+
+```powershell
+git switch -c feat/product-api
+```
+
+### Delete a Branch
+
+Delete a local branch:
+
+```powershell
+git branch -d branch-name
+```
+
+Force delete a local branch if needed:
+
+```powershell
+git branch -D branch-name
+```
+
+Delete a remote branch:
+
+```powershell
+git push origin --delete branch-name
+```
+
+### Helpful Tip
+
+If Git does not allow switching branches because of uncommitted changes, check your status first:
+
+```powershell
+git status
+```
+
 ## Product Model
 
 Each product contains the following fields:
@@ -67,16 +131,15 @@ Each product contains the following fields:
 
 ## API Endpoint Reference
 
-| Method   | Path                          | Description                              | Expected Response                               |
-|------ ---|-------------------------------|------------------------------------------|-------------------------------------------------|
-| `GET`    | `/api/v1/products`            | Get all products                         | `200 OK` with JSON array                        |
-| `GET`    | `/api/v1/products/{id}`       | Get one product by ID                    | `200 OK` with product JSON, or `404  Not Found` |
-| `GET`    | `/api/v1/products/filter?     | Filter products by name, category,       |                                                 |
-|          |filterType=...&filterValue=...`| price, minPrice, or maxPrice             | `200 OK` with JSON array                        |
-| `POST`   | `/api/v1/products`            | Create a new product                     | `201 Created` with product JSON                 |
-| `PUT`    | `/api/v1/products/{id}`       | Replace an existing product              | `200 OK` with updated product JSON              |
-| `PATCH`  | `/api/v1/products/{id}`       | Partially update selected product fields | `200 OK` with updated product JSON              |
-| `DELETE` | `/api/v1/products/{id}`       | Delete a product by ID                   | `204 No Content`                                |
+| Method | Path | Description | Expected Response |
+|---|---|---|---|
+| `GET` | `/api/v1/products` | Get all products | `200 OK` with JSON array |
+| `GET` | `/api/v1/products/{id}` | Get one product by ID | `200 OK` with product JSON, or `404 Not Found` |
+| `GET` | `/api/v1/products/filter?filterType=...&filterValue=...` | Filter products by name, category, price, minPrice, or maxPrice | `200 OK` with JSON array |
+| `POST` | `/api/v1/products` | Create a new product | `201 Created` with product JSON |
+| `PUT` | `/api/v1/products/{id}` | Replace an existing product | `200 OK` with updated product JSON |
+| `PATCH` | `/api/v1/products/{id}` | Partially update selected product fields | `200 OK` with updated product JSON |
+| `DELETE` | `/api/v1/products/{id}` | Delete a product by ID | `204 No Content` |
 
 ## Sample Requests and Responses
 
@@ -326,7 +389,63 @@ Response:
 }
 ```
 
-see all the output in static folder EcommerceApi/src/main/resources/static
+## Postman Output Proof
+
+The screenshots below are stored in `src/main/resources/static/postman_output_images` and show the actual Postman results for each implemented HTTP method.
+
+### GET `/api/v1/products`
+
+Shows the full product list returned by the API.
+
+![GET all products](src/main/resources/static/postman_output_images/GET%20all.png)
+
+### GET `/api/v1/products/{id}`
+
+Shows one product returned by ID.
+
+![GET product by id](src/main/resources/static/postman_output_images/GET%20one%20product.png)
+
+### GET `/api/v1/products/filter?filterType=category&filterValue=Accessories`
+
+Shows filtered products based on `filterType` and `filterValue`.
+
+![GET filtered products](src/main/resources/static/postman_output_images/GET%20filter.png)
+
+### POST `/api/v1/products`
+
+Shows successful product creation with `201 Created`.
+
+![POST create product](src/main/resources/static/postman_output_images/POST.png)
+
+### PUT `/api/v1/products/{id}`
+
+Before update:
+
+![PUT before update](src/main/resources/static/postman_output_images/PUT%20before.png)
+
+After update:
+
+![PUT after update](src/main/resources/static/postman_output_images/PUT%20after.png)
+
+### PATCH `/api/v1/products/{id}`
+
+Before patch:
+
+![PATCH before update](src/main/resources/static/postman_output_images/PATCH%20before.png)
+
+After patch:
+
+![PATCH after update](src/main/resources/static/postman_output_images/PATCH%20after.png)
+
+### DELETE `/api/v1/products/{id}`
+
+Before delete:
+
+![DELETE before](src/main/resources/static/postman_output_images/DELETE%20before.png)
+
+After delete:
+
+![DELETE after](src/main/resources/static/postman_output_images/DELETE%20after.png)
 
 ## Known Limitations
 
