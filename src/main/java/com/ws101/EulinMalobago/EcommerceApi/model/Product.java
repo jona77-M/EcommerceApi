@@ -1,5 +1,9 @@
 package com.ws101.EulinMalobago.EcommerceApi.model;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -21,10 +25,21 @@ import lombok.ToString;
 @AllArgsConstructor
 public class Product {
 	private Long id;
+
+	@NotBlank(message = "Product name is required.")
+	@Size(min = 2, message = "Product name must be at least 2 characters.")
 	private String productName;
+
 	private String description;
+
+	@Positive(message = "Price must be a positive number.")
 	private double price;
+
+	@NotBlank(message = "Category is required.")
 	private String category;
+
+	@Min(value = 0, message = "Stock quantity must be non-negative.")
 	private int stockQuantity;
+
 	private String imageUrl;
 }
