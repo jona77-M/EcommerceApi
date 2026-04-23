@@ -8,9 +8,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
-import org.springframework.http.HttpStatus;
 
+import com.ws101.EulinMalobago.EcommerceApi.exception.ProductNotFoundException;
 import com.ws101.EulinMalobago.EcommerceApi.model.Product;
 
 /**
@@ -77,8 +76,7 @@ public class ProductService {
 		return productList.stream()
 				.filter(product -> product.getId().equals(id))
 				.findFirst()
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-						"Product not found with ID: " + id));
+				.orElseThrow(() -> new ProductNotFoundException("Product not found with ID: " + id));
 	}
 
 	
