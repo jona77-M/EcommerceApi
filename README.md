@@ -1,0 +1,337 @@
+# Ecommerce API
+
+## Project Overview
+
+This project is a Spring Boot REST API for a simple e-commerce product catalog. It provides endpoints to create, read, update, partially update, delete, and filter products. The application is designed for learning basic REST principles, request validation, exception handling, and CRUD operations.
+
+Base URL:
+
+```text
+http://localhost:8080/api/v1/products
+```
+
+## Tech Stack
+
+- Java
+- Spring Boot
+- Maven
+- Lombok
+- Jakarta Validation
+
+## Setup Instructions
+
+### Requirements
+
+- Java 25 installed
+- Maven installed, or use the included Maven wrapper
+
+### Run the Application
+
+1. Open a terminal in the project folder:
+
+```powershell
+cd "d:\documents\SYSTEMS\WEB SYSTEM\final lab 7\EcommerceApi\EcommerceApi"
+```
+
+2. Build the project:
+
+```powershell
+.\mvnw.cmd clean install
+```
+
+3. Start the application:
+
+```powershell
+.\mvnw.cmd spring-boot:run
+```
+
+4. Once running, the API will be available at:
+
+```text
+http://localhost:8080
+```
+
+## Product Model
+
+Each product contains the following fields:
+
+| Field           | Type      | Notes                          |
+|-----------------|-----------|--------------------------------|
+| `id`            | `Long`    | Auto-generated                 |
+| `productName`   | `String`  | Required, minimum 2 characters |
+| `description`   | `String`  | Optional                       |
+| `price`         | `double`  | Required, must be positive     |
+| `category`      | `String`  | Required                       |
+| `stockQuantity` | `int`     | Required, must be 0 or greater |
+| `imageUrl`      | `String`  | Optional                       |
+
+## API Endpoint Reference
+
+| Method   | Path                          | Description                              | Expected Response                               |
+|------ ---|-------------------------------|------------------------------------------|-------------------------------------------------|
+| `GET`    | `/api/v1/products`            | Get all products                         | `200 OK` with JSON array                        |
+| `GET`    | `/api/v1/products/{id}`       | Get one product by ID                    | `200 OK` with product JSON, or `404  Not Found` |
+| `GET`    | `/api/v1/products/filter?     | Filter products by name, category,       |                                                 |
+|          |filterType=...&filterValue=...`| price, minPrice, or maxPrice             | `200 OK` with JSON array                        |
+| `POST`   | `/api/v1/products`            | Create a new product                     | `201 Created` with product JSON                 |
+| `PUT`    | `/api/v1/products/{id}`       | Replace an existing product              | `200 OK` with updated product JSON              |
+| `PATCH`  | `/api/v1/products/{id}`       | Partially update selected product fields | `200 OK` with updated product JSON              |
+| `DELETE` | `/api/v1/products/{id}`       | Delete a product by ID                   | `204 No Content`                                |
+
+## Sample Requests and Responses
+
+### 1. Get All Products
+
+Request:
+
+```http
+GET /api/v1/products HTTP/1.1
+Host: localhost:8080
+```
+
+Response:
+
+```json
+[
+  {
+    "id": 1,
+    "productName": "Wireless Mouse",
+    "description": "Ergonomic wireless mouse with USB receiver.",
+    "price": 599.0,
+    "category": "Accessories",
+    "stockQuantity": 35,
+    "imageUrl": "/images/wireless.jpg"
+  }
+]
+```
+
+### 2. Get Product By ID
+
+Request:
+
+```http
+GET /api/v1/products/1 HTTP/1.1
+Host: localhost:8080
+```
+
+Response:
+
+```json
+{
+  "id": 1,
+  "productName": "Wireless Mouse",
+  "description": "Ergonomic wireless mouse with USB receiver.",
+  "price": 599.0,
+  "category": "Accessories",
+  "stockQuantity": 35,
+  "imageUrl": "/images/wireless.jpg"
+}
+```
+
+### 3. Create Product
+
+Request:
+
+```http
+POST /api/v1/products HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+```
+
+```json
+{
+  "productName": "4k HD Webcam",
+  "description": "High-definition webcam with built-in microphone for video calls",
+  "price": 1900,
+  "category": "Electronics",
+  "stockQuantity": 12,
+  "imageUrl": "/images/webcam.jpg"
+}
+```
+
+Response:
+
+```json
+{
+  "id": 12,
+  "productName": "4k HD Webcam",
+  "description": "High-definition webcam with built-in microphone for video calls",
+  "price": 1900.0,
+  "category": "Electronics",
+  "stockQuantity": 12,
+  "imageUrl": "/images/webcam.jpg"
+}
+```
+
+### 4. Update Product With PUT
+
+Request:
+
+```http
+PUT /api/v1/products/2 HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+```
+
+```json
+{
+  "productName": "Mechanical Keyboard Pro",
+  "description": "Compact mechanical keyboard with RGB backlight",
+  "price": 2899,
+  "category": "Accessories",
+  "stockQuantity": 10,
+  "imageUrl": "/images/keyboard-pro.jpg"
+}
+```
+
+Response:
+
+```json
+{
+  "id": 2,
+  "productName": "Mechanical Keyboard Pro",
+  "description": "Compact mechanical keyboard with RGB backlight",
+  "price": 2899.0,
+  "category": "Accessories",
+  "stockQuantity": 10,
+  "imageUrl": "/images/keyboard-pro.jpg"
+}
+```
+
+### 5. Partially Update Product With PATCH
+
+Request:
+
+```http
+PATCH /api/v1/products/9 HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+```
+
+```json
+{
+  "productName": "4k HD Webcam",
+  "price": 1900,
+  "stockQuantity": 12,
+  "imageUrl": "/images/webcam.jpg"
+}
+```
+
+Response:
+
+```json
+{
+  "id": 9,
+  "productName": "4k HD Webcam",
+  "description": "Fast-charging USB-C wall charger.",
+  "price": 1900.0,
+  "category": "Mobile",
+  "stockQuantity": 12,
+  "imageUrl": "/images/webcam.jpg"
+}
+```
+
+PATCH notes:
+
+- Only the fields included in the request body are updated.
+- Supported patch fields are `productName`, `description`, `price`, `category`, `stockQuantity`, and `imageUrl`.
+- `id` cannot be changed.
+
+### 6. Delete Product
+
+Request:
+
+```http
+DELETE /api/v1/products/3 HTTP/1.1
+Host: localhost:8080
+```
+
+Response:
+
+```text
+204 No Content
+```
+
+### 7. Filter Products
+
+Request:
+
+```http
+GET /api/v1/products/filter?filterType=category&filterValue=mobile HTTP/1.1
+Host: localhost:8080
+```
+
+Response:
+
+```json
+[
+  {
+    "id": 5,
+    "productName": "Bluewow Phone Cooler",
+    "description": "Portable semiconductor phone cooler with RGB lighting, low-noise fan, and adjustable clip.",
+    "price": 1299.0,
+    "category": "Mobile",
+    "stockQuantity": 27,
+    "imageUrl": "/images/bluewow.jpg"
+  },
+  {
+    "id": 9,
+    "productName": "Phone Charger",
+    "description": "Fast-charging USB-C wall charger.",
+    "price": 499.0,
+    "category": "Mobile",
+    "stockQuantity": 50,
+    "imageUrl": "/images/charger.jpg"
+  }
+]
+```
+
+## Error Response Examples
+
+### Validation Error
+
+Example request body:
+
+```json
+{
+  "productName": "",
+  "price": -10,
+  "category": "",
+  "stockQuantity": -1
+}
+```
+
+Response:
+
+```json
+{
+  "productName": "Product name is required.",
+  "price": "Price must be a positive number.",
+  "category": "Category is required.",
+  "stockQuantity": "Stock quantity must be non-negative."
+}
+```
+
+### Product Not Found
+
+Response:
+
+```json
+{
+  "timestamp": "2026-04-23T10:15:30",
+  "status": 404,
+  "error": "Not Found",
+  "message": "Product not found with ID: 99",
+  "path": "/api/v1/products/99"
+}
+```
+
+see all the output in static folder EcommerceApi/src/main/resources/static
+
+## Known Limitations
+
+- The application uses in-memory storage only.
+- Data is reset every time the application restarts.
+- There is no database integration yet.
+- There is no authentication or authorization.
+- This project is intended for development and learning, not production use.
