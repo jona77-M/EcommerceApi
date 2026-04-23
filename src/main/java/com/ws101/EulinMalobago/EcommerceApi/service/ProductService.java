@@ -78,6 +78,21 @@ public class ProductService {
 	}
 
 	
+    /**
+	 * Creates a new product and assigns a unique ID.
+	 *
+	 * @param product the product data to create
+	 * @return the created product with its generated ID
+	 * @throws IllegalArgumentException if the product data is invalid
+	 */
+	public synchronized Product createProduct(Product product) {
+		validateProduct(product);
+		product.setId(nextId.getAndIncrement());
+		productList.add(product);
+		return product;
+	}
+
+
 
 	/**
 	 * Replaces all editable fields for an existing product.
