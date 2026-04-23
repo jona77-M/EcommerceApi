@@ -22,6 +22,9 @@ import com.ws101.EulinMalobago.EcommerceApi.service.ProductService;
 
 /**
  * REST controller that exposes product catalog API endpoints.
+ * eulin and malobago are the authors of this code.
+ * This controller provides endpoints for CRUD operations on products, as well as filtering products by various criteria. 
+ * It uses a ProductService to perform business logic and data access operations, and returns appropriate HTTP responses for each endpoint.
  */
 @RestController
 @RequestMapping("/api/v1/products")
