@@ -3,10 +3,10 @@
 // create this script.js file
 //============================================
 // ===============================
-// ===============================
+// ===============================fixing
 
 /*
-Task 1 logic:
+Task 1 logic: 
 - This section builds the foundation of the whole script by defining the main classes:
   Product, CartItem, Order, and User.
 - It also prepares shared constants and localStorage helpers so cart data, order history,
