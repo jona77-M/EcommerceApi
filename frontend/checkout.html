@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout</title>
+  <link rel="stylesheet" href="styles/style.css" />
+</head>
+
+<body class="checkout">
+  <header>
+    <nav>
+      <ul class="nav-links">
+        <li><a href="landing.html">Home</a></li>
+        <li><a href="products.html">Product</a></li>
+        <li><a href="cart.html">Cart</a></li>
+        <li><a href="account.html">Account</a></li>
+        <li><a href="signup.html">SignUp</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- PAGE LAYOUT -->
+  <div class="checkout-layout">
+    <main class="checkout-main">
+
+      <!-- SECTION: Shipping Address -->
+      <section class="checkout-card">
+        <h2>Shipping</h2>
+
+        <form id="shippingForm" novalidate>
+          <fieldset>
+            <legend>Shipping Address</legend>
+
+            <p>
+              <label for="fullName">Full Name</label><br />
+              <input id="fullName" name="fullName" type="text" placeholder="Jona Eulin" required />
+            </p>
+
+            <p>
+              <label for="street">Street</label><br />
+              <input id="street" name="street" type="text" placeholder="Brgy. ___, Catarman" required />
+            </p>
+
+            <p>
+              <label for="zip">Zip Code</label><br />
+              <input id="zip" name="zip" type="text" placeholder="6400" required />
+            </p>
+          </fieldset>
+        </form>
+      </section>
+
+      <!-- SECTION: Payment -->
+      <section class="checkout-card">
+        <h2>Payment</h2>
+
+        <form id="paymentForm" novalidate>
+          <fieldset>
+            <legend>Payment Method</legend>
+
+            <label class="radio">
+              <input type="radio" name="paymentMethod" value="card" checked />
+              Credit Card
+            </label>
+
+            <label class="radio">
+              <input type="radio" name="paymentMethod" value="paypal" />
+              PayPal
+            </label>
+          </fieldset>
+
+          <fieldset>
+            <legend>Card Details</legend>
+
+            <p>
+              <label for="cardNumber">Card Number</label><br />
+              <input id="cardNumber" type="text" placeholder="1234 5678 9012 3456" />
+            </p>
+
+            <p>
+              <label for="expiry">Expiry</label><br />
+              <input id="expiry" type="text" placeholder="MM/YY" />
+            </p>
+
+            <p>
+              <label for="cvv">CVV</label><br />
+              <input id="cvv" type="text" placeholder="123" />
+            </p>
+
+            <p class="note">
+              If you choose PayPal, you’ll be redirected after placing the order.
+            </p>
+          </fieldset>
+        </form>
+      </section>
+
+    </main>
+
+    <!-- ASIDE SUMMARY (sticky) -->
+    <aside class="summary">
+      <h2>Order Summary</h2>
+
+      <ul class="summary-list" id="checkout-summary-items"></ul>
+
+      <hr />
+
+      <p class="row"><span>SubTotal</span><span id="checkout-subtotal">$0.00</span></p>
+      <p class="row"><span>Shipping fee</span><span id="checkout-shipping">$0.00</span></p>
+      <p class="row"><span>Discount</span><span id="checkout-discount">- $0.00</span></p>
+
+      <p class="row total"><span>Total</span><span id="checkout-total">$0.00</span></p>
+      <p class="note" id="checkout-summary-note">Shipping is $4.00 for each item quantity, with a 10% discount on subtotal.</p>
+
+      <button class="place-order" type="submit" form="paymentForm">Place Order</button>
+    </aside>
+  </div>
+  <script src="scripts/script.js"></script>
+</body>
+</html>

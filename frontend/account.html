@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Account</title>
+  <link rel="stylesheet" href="styles/style.css" />
+</head>
+
+<body>
+  <header class="topbar">
+    <div>
+      <h1 class="logo" id="accountGreeting">My Account</h1>
+      <p class="muted">Welcome, <strong id="accountName">Guest</strong></p>
+    </div>
+
+    <nav class="topnav">
+      <ul>
+        <li><a href="landing.html">Home</a></li>
+        <li><a href="#orders">Order History</a></li>
+        <li><a href="#profile">Profile Settings</a></li>
+        <li><a href="#wishlist">Wishlist</a></li>
+      </ul>
+      <button type="button">Logout</button>
+    </nav>
+  </header>
+
+  <main class="page">
+    <section id="orders">
+      <h2>Order History</h2>
+
+      <ul class="order-list" id="order-history-list"></ul>
+    </section>
+
+    <section id="profile" hidden>
+      <h2>Profile Settings</h2>
+      <p>Demo page. view update-name/email here later.</p>
+    </section>
+
+    <section id="wishlist" hidden>
+      <h2>Wishlist</h2>
+      <p>Demo page. view wishlist items.</p>
+    </section>
+  </main>
+  <script src="scripts/script.js"></script>
+</body>
+
+</html>

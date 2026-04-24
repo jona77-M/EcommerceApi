@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Products</title>
+    <link rel="stylesheet" href="styles/style.css" />
+</head>
+
+<body>
+
+    <header>
+        <nav class="main-nav">
+            <div class="logo-box">
+                <img src="assets/logo.png" alt="logo" class="logo-img">
+            </div>
+            <ul class="nav-links">
+                <li><a href="landing.html">Home</a></li>
+                <li><a href="products.html">Product</a></li>
+                <li><a href="cart.html">Cart</a></li>
+                <li><a href="account.html">Account</a></li>
+                <li><a href="signup.html">SignUp</a></li>
+            </ul>
+        </nav>
+    </header>
+    <div class="layout">
+        <!-- ASIDE FILTERS -->
+        <aside class="filters">
+            <h2>Filter</h2>
+
+            <form>
+                <fieldset>
+                    <legend>Category</legend>
+
+                    <label>
+                        <input type="checkbox" name="category" value="laptop" />
+                        Laptop
+                    </label>
+
+                    <label>
+                        <input type="checkbox" name="category" value="mouse" />
+                        Mouse
+                    </label>
+
+                    <label>
+                        <input type="checkbox" name="category" value="keyboard" />
+                        Keyboard
+                    </label>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Price</legend>
+
+                    <label>
+                        <input type="radio" name="price" value="all" checked />
+                        All
+                    </label>
+
+                    <label>
+                        <input type="radio" name="price" value="0-1000" />
+                        $0 - $1,000
+                    </label>
+
+                    <label>
+                        <input type="radio" name="price" value="1001-5000" />
+                        $1,001 - $5,000
+                    </label>
+
+                    <label>
+                        <input type="radio" name="price" value="5001+" />
+                        $5,001+
+                    </label>
+                </fieldset>
+
+                <button type="button" id="applyFiltersBtn">Apply Filters</button>
+                <button type="button" id="resetFiltersBtn">Reset</button>
+            </form>
+        </aside>
+
+        <!-- MAIN GRID -->
+        <main class="products">
+            <h2>All Products</h2>
+
+            <section class="product-grid">
+                <!-- <article class="product-card">
+                    <img src="assets/mouse.jpg" alt="mouse" />
+                    <div class="product-body">
+                        <h3>Gaming Mouse</h3>
+                        <p class="price">7</p>
+
+                        <div class="actions">
+                            <a class="view-Btn" href="detail.html">View Details</a>
+                            <button type="button" data-id="1">Add to Cart</button>
+                        </div>
+                    </div>
+                </article>
+                <article class="product-card">
+                    <img src="assets/tablet.jpg" alt="tablet" />
+                    <div class="product-body">
+                        <h3>Tablet</h3>
+                        <p class="price">10</p>
+
+                        <div class="actions">
+                            <a href="detail.html">View Details</a>
+                            <button type="button" data-id="1">Add to Cart</button>
+                        </div>
+                    </div>
+                </article>
+                <article class="product-card">
+
+                    <img src="assets/images/victus.png" alt="laptop" />
+                    <div class="product-body">
+                        <h3>Gaming Laptop</h3>
+                        <p class="price">15</p>
+
+                        <div class="actions">
+                            <a href="detail.html">View Details</a>
+                            <button type="button" data-id="1">Add to Cart</button>
+                        </div>
+                    </div>
+                </article> -->
+            </section>
+        </main>
+    </div>
+
+    <script src="scripts/script.js"></script>
+</body>
+
+</html>
