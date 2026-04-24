@@ -391,13 +391,7 @@ These are the database-backed endpoints currently used by the project:
 
 ### Browser Console Fetch Screenshot
 
-Add your successful browser fetch screenshot to the repository, then embed it here using the same format as the images above.
-
-Example:
-
-```md
 ![Browser console successful fetch](src/main/resources/static/database_schema/browser_console.png)
-```
 
 ## Sample Requests and Responses
 
