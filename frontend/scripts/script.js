@@ -1,3 +1,12 @@
+/**
+ * Frontend application script for the Academic Tech Shop project.
+ *
+ * This file handles product loading, dynamic rendering, cart behavior,
+ * checkout validation, and account order history features.
+ *
+ * Authors: Eulin and Malobago
+ */
+
 //============================================
 //Task 1: The Script Foundation & Data Structure
 // create this script.js file
@@ -15,6 +24,9 @@ Task 1 logic:
   and total are needed in both cart and checkout behavior.
 */
 
+/**
+ * Stores the display-ready product details used throughout the frontend.
+ */
 class Product {
     constructor(id, name, price, image, detailPage) {
         this.id = id;
@@ -25,6 +37,9 @@ class Product {
     }
 }
 
+/**
+ * Represents one product entry inside the shopping cart with quantity data.
+ */
 class CartItem {
     constructor(product, quantity) {
         this.id = product.id;
@@ -36,6 +51,9 @@ class CartItem {
     }
 }
 
+/**
+ * Stores the finalized checkout information for order history and confirmation.
+ */
 class Order {
     constructor(id, date, subtotal, shipping, discount, total, items, status) {
         this.id = id;
@@ -49,6 +67,9 @@ class Order {
     }
 }
 
+/**
+ * Represents the current user and the orders linked to that user.
+ */
 class User {
     constructor(name, orderHistory) {
         this.name = name;
@@ -65,6 +86,9 @@ const SHIPPING_FEE_PER_ITEM = 4;
 const DISCOUNT_RATE = 0.10;
 const PRODUCTS_API_URL = "http://localhost:8080/api/v1/products";
 
+/**
+ * Provides starter order history data when localStorage is still empty.
+ */
 function getDefaultOrderHistory() {
     return [
         new Order(
@@ -94,6 +118,9 @@ function getDefaultOrderHistory() {
     ];
 }
 
+/**
+ * Converts saved order data into a consistent structure before rendering.
+ */
 function normalizeOrder(order) {
     return {
         id: order.id || String(Date.now()),
@@ -107,6 +134,9 @@ function normalizeOrder(order) {
     };
 }
 
+/**
+ * Loads order history from localStorage and falls back to starter data if needed.
+ */
 function loadOrderHistory() {
     const savedOrders = localStorage.getItem(ORDER_HISTORY_STORAGE_KEY);
 
@@ -125,14 +155,23 @@ function loadOrderHistory() {
     }
 }
 
+/**
+ * Saves the full order history list to localStorage.
+ */
 function saveOrderHistory(orderHistory) {
     localStorage.setItem(ORDER_HISTORY_STORAGE_KEY, JSON.stringify(orderHistory));
 }
 
+/**
+ * Stores the latest placed order so the thank-you page can show it.
+ */
 function saveLastOrder(order) {
     localStorage.setItem(LAST_ORDER_STORAGE_KEY, JSON.stringify(order));
 }
 
+/**
+ * Reads the latest order from localStorage for confirmation display.
+ */
 function loadLastOrder() {
     const savedOrder = localStorage.getItem(LAST_ORDER_STORAGE_KEY);
 
@@ -149,10 +188,16 @@ function loadLastOrder() {
 
 const currentUser = new User("Jona", loadOrderHistory());
 
+/**
+ * Persists the current cart items in localStorage.
+ */
 function saveCart() {
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
 }
 
+/**
+ * Calculates subtotal, shipping, discount, total, and quantity for cart items.
+ */
 function calculateCartSummary(cartItems) {
     const subtotal = cartItems.reduce(function(sum, item) {
         return sum + (item.price * item.quantity);
@@ -173,12 +218,18 @@ function calculateCartSummary(cartItems) {
     };
 }
 
+/**
+ * Counts the total quantity of items currently inside the cart.
+ */
 function getCartItemCount() {
     return cart.reduce(function(sum, item) {
         return sum + item.quantity;
     }, 0);
 }
 
+/**
+ * Updates all cart navigation links with the current cart item count.
+ */
 function updateCartLinks() {
     const cartLinks = document.querySelectorAll('a[href="cart.html"]');
     const cartItemCount = getCartItemCount();
@@ -188,6 +239,9 @@ function updateCartLinks() {
     });
 }
 
+/**
+ * Plays a visual animation when a product is added to the cart.
+ */
 function animateAddToCart(productCard) {
     const cartLink = document.querySelector('a[href="cart.html"]');
 
@@ -227,6 +281,9 @@ function animateAddToCart(productCard) {
     }, 700);
 }
 
+/**
+ * Loads saved cart items from localStorage and rebuilds them as CartItem objects.
+ */
 function loadCart() {
     const savedCart = localStorage.getItem(CART_STORAGE_KEY);
 
@@ -249,6 +306,9 @@ function loadCart() {
     });
 }
 
+/**
+ * Formats numbers into a currency string for display.
+ */
 function formatPrice(value) {
     return "$" + Number(value).toLocaleString(undefined, {
         minimumFractionDigits: 2,
@@ -256,6 +316,9 @@ function formatPrice(value) {
     });
 }
 
+/**
+ * Resolves the image path for API products using API fields or name-based fallbacks.
+ */
 function getProductImage(productData) {
     if (productData.imageUrl) {
         return productData.imageUrl;
@@ -308,6 +371,9 @@ function getProductImage(productData) {
     return "assets/logo.png";
 }
 
+/**
+ * Converts raw API product data into the Product structure used by the frontend.
+ */
 function mapApiProductToProduct(productData) {
     return new Product(
         productData.id,
@@ -320,6 +386,9 @@ function mapApiProductToProduct(productData) {
 
 
 
+/**
+ * Fetches products from the backend API and returns a normalized product list.
+ */
 async function fetchProducts() {
     try {
         const response = await fetch(PRODUCTS_API_URL);
@@ -350,6 +419,9 @@ async function fetchProducts() {
     }
 }
 
+/**
+ * Renders featured and discounted product sections on the landing page.
+ */
 function renderLandingProducts() {
     const featuredContainer = document.querySelector(".section2");
     const discountedContainer = document.querySelector(".section3");
@@ -431,6 +503,9 @@ function renderLandingProducts() {
     }
 }
 
+/**
+ * Builds the rotating hero section using the first available fetched products.
+ */
 function initializeLandingHeroSlider() {
     const heroSection = document.querySelector(".section1");
 
@@ -499,6 +574,9 @@ Task 2 logic:
   user to the related detail page.
 */
 
+/**
+ * Dynamically injects the full product catalog into the products page grid.
+ */
 function renderProductGrid() {
     const productContainer = document.querySelector(".product-grid");
 
@@ -622,6 +700,9 @@ document.body.addEventListener("click", function(event) {
     }
 });
 
+/**
+ * Draws the cart page contents and updates totals based on current cart data.
+ */
 function renderCart() {
     const cartList = document.querySelector(".cart-list");
     const totalDisplay = document.getElementById("cart-total");
@@ -742,6 +823,9 @@ function renderCart() {
     renderCheckoutSummary();
 }
 
+/**
+ * Displays the checkout summary values and item list before order placement.
+ */
 function renderCheckoutSummary() {
     const summaryItemsList = document.getElementById("checkout-summary-items");
     const subtotalElement = document.getElementById("checkout-subtotal");
@@ -804,6 +888,9 @@ function renderCheckoutSummary() {
     }
 }
 
+/**
+ * Removes a cart item and applies a short exit animation when possible.
+ */
 function removeCartItemWithAnimation(id) {
     const cartItemElement = document.querySelector('.cart-item[data-id="' + id + '"]');
 
@@ -1054,6 +1141,9 @@ if (accountGreeting && accountName) {
     accountName.textContent = currentUser.name;
 }
 
+/**
+ * Renders the saved orders in the account page history section.
+ */
 function renderOrderHistory() {
     if (!orderHistoryList) {
         return;
@@ -1134,6 +1224,9 @@ if (thankyouOrderIdValue) {
     }
 }
 
+/**
+ * Starts the frontend by loading products first, then rendering page features.
+ */
 async function initializeApp() {
     products = await fetchProducts();
     renderLandingProducts();
