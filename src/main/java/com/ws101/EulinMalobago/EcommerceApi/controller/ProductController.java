@@ -3,7 +3,6 @@ package com.ws101.EulinMalobago.EcommerceApi.controller;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
-import jakarta.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,10 +19,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ws101.EulinMalobago.EcommerceApi.model.Product;
 import com.ws101.EulinMalobago.EcommerceApi.service.ProductService;
 
+import jakarta.validation.Valid;
+
 /**
- * REST controller that exposes product catalog API endpoints. eulin and
+ * REST controller that exposes product catalog API endpoints. 
  * 
- * @author malobago are the authors of this code. This controller provides
+ * @author eulin and malobago are the authors of this code. This controller provides
  *         endpoints for
  *         CRUD operations on products, as well as filtering products by various
  *         criteria. It uses a ProductService to perform business logic and data

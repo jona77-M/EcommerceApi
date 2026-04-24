@@ -1,297 +1,285 @@
 package com.ws101.EulinMalobago.EcommerceApi.service;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.ws101.EulinMalobago.EcommerceApi.exception.ProductNotFoundException;
+import com.ws101.EulinMalobago.EcommerceApi.model.Category;
 import com.ws101.EulinMalobago.EcommerceApi.model.Product;
+import com.ws101.EulinMalobago.EcommerceApi.repository.CategoryRepository;
+import com.ws101.EulinMalobago.EcommerceApi.repository.ProductRepository;
+
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
+import jakarta.validation.Validator;
 
 /**
- * Service class for product-related operations.
+ * Service class for product-related operations backed by Spring Data JPA.
  *
- * Provides business logic for filtering, searching, and managing products using
- * an in-memory list instead of a database.
- *
- * @author R. Malobago & E. Eulin - WS101 - BSIT-2B
- * @see Product
+ * @author Eulin Malobago
  */
 @Service
 public class ProductService {
-	private final List<Product> productList = new ArrayList<>();
-	private final AtomicLong nextId = new AtomicLong(1);
+    private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
+    private final Validator validator;
 
-	/**
-	 * Creates the service and loads sample product data into memory.
-	 */
-	public ProductService() {
-		addSampleProduct("Wireless Mouse", "Ergonomic wireless mouse with USB receiver.", 599.00, "Accessories", 35,
-				"/images/wireless.jpg");
-		addSampleProduct("Mechanical Keyboard", "Compact blue-switch mechanical keyboard.", 2499.00, "Accessories", 18,
-				"/images/Mechanical%20Keyboard.jpg");
-		addSampleProduct("USB-C Hub", "Seven-in-one USB-C hub with HDMI and card reader.", 1399.00, "Accessories", 22,
-				"/images/charger1.jpg");
-		addSampleProduct("Gaming Headset", "Over-ear headset with noise-cancelling microphone.", 1799.00, "Audio", 14,
-				"/images/Gaming%20Mouse.jpg");
-		addSampleProduct("Bluewow Phone Cooler",
-				"Portable semiconductor phone cooler with RGB lighting, low-noise fan, and adjustable clip.",
-				1299.00, "Mobile", 27,
-				"/images/bluewow.jpg");
-		addSampleProduct("Smart Watch", "Fitness smartwatch with heart-rate tracking.", 3299.00, "Wearables", 12,
-				"/images/smart_watch.jpg");
-		addSampleProduct("Laptop Stand", "Adjustable aluminum laptop stand.", 899.00, "Office", 40,
-				"/images/laptop-stand.jpg");
-		addSampleProduct("Desk Lamp", "LED desk lamp with brightness controls.", 749.00, "Office", 31,
-				"/images/office-tab.jpg");
-		addSampleProduct("Phone Charger", "Fast-charging USB-C wall charger.", 499.00, "Mobile", 50,
-				"/images/charger.jpg");
-		addSampleProduct("Power Bank", "10000mAh portable power bank.", 1099.00, "Mobile", 24,
-				"/images/powerbank.jpg");
-		addSampleProduct("Airpod", "True wireless earbuds with charging case.", 1999.00, "Audio", 15,
-				"/images/airpod.jpg");
-	}
+    public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository, Validator validator) {
+        this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
+        this.validator = validator;
+    }
 
-	/**
-	 * Retrieves all products.
-	 *
-	 * @return a list containing all products
-	 */
-	public synchronized List<Product> getAllProducts() {
-		return new ArrayList<>(productList);
-	}
-
-	/**
-	 * Finds a product by its ID.
-	 *
-	 * @param id the product ID to find
-	 * @return the matching product
-	 * @throws ProductNotFoundException if no product has the requested ID
-	 */
-	public synchronized Product getProductById(Long id) {
-		return productList.stream()
-				.filter(product -> product.getId().equals(id))
-				.findFirst()
-				.orElseThrow(() -> new ProductNotFoundException("Product not found with ID: " + id));
-	}
-
-	
     /**
-	 * Creates a new product and assigns a unique ID.
-	 *
-	 * @param product the product data to create
-	 * @return the created product with its generated ID
-	 * @throws IllegalArgumentException if the product data is invalid
-	 */
-	public synchronized Product createProduct(Product product) {
-		validateProduct(product);
-		product.setId(nextId.getAndIncrement());
-		productList.add(product);
-		return product;
-	}
+     * Retrieves all products from the database.
+     *
+     * @return all persisted products
+     */
+    @Transactional(readOnly = true)
+    public List<Product> getAllProducts() {
+        List<Product> products = productRepository.findAll();
+        products.forEach(this::hydrateCategoryName);
+        return products;
+    }
 
+    /**
+     * Finds a product by its database identifier.
+     *
+     * @param id product id
+     * @return the matching product
+     */
+    @Transactional(readOnly = true)
+    public Product getProductById(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Product not found with ID: " + id));
+        hydrateCategoryName(product);
+        return product;
+    }
 
+    /**
+     * Creates and persists a new product.
+     *
+     * @param product inbound product payload
+     * @return persisted product
+     */
+    @Transactional
+    public Product createProduct(@Valid Product product) {
+        validateProduct(product);
+        product.setId(null);
+        product.setCategory(resolveCategory(product));
+        Product savedProduct = productRepository.save(product);
+        hydrateCategoryName(savedProduct);
+        return savedProduct;
+    }
 
-	/**
-	 * Replaces all editable fields for an existing product.
-	 *
-	 * @param id      the product ID to update
-	 * @param product the replacement product data
-	 * @return the updated product
-	 * @throws ProductNotFoundException if no product has the requested ID
-	 * @throws IllegalArgumentException if the product data is invalid
-	 */
-	public synchronized Product updateProduct(Long id, Product product) {
-		validateProduct(product);
-		Product existingProduct = getProductById(id);
-		existingProduct.setProductName(product.getProductName());
-		existingProduct.setDescription(product.getDescription());
-		existingProduct.setPrice(product.getPrice());
-		existingProduct.setCategory(product.getCategory());
-		existingProduct.setStockQuantity(product.getStockQuantity());
-		existingProduct.setImageUrl(product.getImageUrl());
-		return existingProduct;
-	}
+    /**
+     * Replaces all editable fields for an existing product.
+     *
+     * @param id product id
+     * @param product replacement payload
+     * @return updated product
+     */
+    @Transactional
+    public Product updateProduct(Long id, @Valid Product product) {
+        validateProduct(product);
+        Product existingProduct = getProductById(id);
+        existingProduct.setProductName(product.getProductName());
+        existingProduct.setDescription(product.getDescription());
+        existingProduct.setPrice(product.getPrice());
+        existingProduct.setCategory(resolveCategory(product));
+        existingProduct.setStockQuantity(product.getStockQuantity());
+        existingProduct.setImageUrl(product.getImageUrl());
+        Product savedProduct = productRepository.save(existingProduct);
+        hydrateCategoryName(savedProduct);
+        return savedProduct;
+    }
 
-	/**
-	 * Partially updates an existing product.
-	 *
-	 * @param id      the product ID to update
-	 * @param changes the field changes to apply
-	 * @return the updated product
-	 * @throws ProductNotFoundException if no product has the requested ID
-	 * @throws IllegalArgumentException if the patch field or value is invalid
-	 */
-	public synchronized Product patchProduct(Long id, Map<String, Object> changes) {
-		Product existingProduct = getProductById(id);
+    /**
+     * Applies a partial update to an existing product.
+     *
+     * @param id product id
+     * @param changes requested field updates
+     * @return updated product
+     */
+    @Transactional
+    public Product patchProduct(Long id, Map<String, Object> changes) {
+        Product existingProduct = getProductById(id);
 
-		if (changes == null || changes.isEmpty()) {
-			throw new IllegalArgumentException("At least one product field is required for PATCH.");
-		}
+        if (changes == null || changes.isEmpty()) {
+            throw new IllegalArgumentException("At least one product field is required for PATCH.");
+        }
 
-		Map<String, Object> normalizedChanges = new LinkedHashMap<>();
-		for (Map.Entry<String, Object> change : changes.entrySet()) {
-			String normalizedKey = "name".equals(change.getKey()) ? "productName" : change.getKey();
-			normalizedChanges.put(normalizedKey, change.getValue());
-		}
+        Map<String, Object> normalizedChanges = new LinkedHashMap<>();
+        for (Map.Entry<String, Object> change : changes.entrySet()) {
+            String key = change.getKey();
+            String normalizedKey = "name".equals(key) ? "productName" : key;
+            normalizedChanges.put(normalizedKey, change.getValue());
+        }
 
-		for (Map.Entry<String, Object> change : normalizedChanges.entrySet()) {
-			switch (change.getKey()) {
-				case "productName" -> existingProduct.setProductName(asString(change.getValue(), "productName"));
-				case "description" -> existingProduct.setDescription(asString(change.getValue(), "description"));
-				case "price" -> existingProduct.setPrice(asDouble(change.getValue(), "price"));
-				case "category" -> existingProduct.setCategory(asString(change.getValue(), "category"));
-				case "stockQuantity" -> existingProduct.setStockQuantity(asInteger(change.getValue(), "stockQuantity"));
-				case "imageUrl" -> existingProduct.setImageUrl(asString(change.getValue(), "imageUrl"));
-				case "id" -> throw new IllegalArgumentException("Product ID cannot be changed.");
-				default -> throw new IllegalArgumentException("Unsupported product field: " + change.getKey());
-			}
-		}
+        for (Map.Entry<String, Object> change : normalizedChanges.entrySet()) {
+            switch (change.getKey()) {
+                case "productName" -> existingProduct.setProductName(asString(change.getValue(), "productName"));
+                case "description" -> existingProduct.setDescription(asString(change.getValue(), "description"));
+                case "price" -> existingProduct.setPrice(asDouble(change.getValue(), "price"));
+                case "category", "categoryName" -> existingProduct.setCategory(resolveCategoryName(change.getValue()));
+                case "stockQuantity" -> existingProduct.setStockQuantity(asInteger(change.getValue(), "stockQuantity"));
+                case "imageUrl" -> existingProduct.setImageUrl(asString(change.getValue(), "imageUrl"));
+                case "id" -> throw new IllegalArgumentException("Product ID cannot be changed.");
+                default -> throw new IllegalArgumentException("Unsupported product field: " + change.getKey());
+            }
+        }
 
-		validateProduct(existingProduct);
-		return existingProduct;
-	}
+        validateProduct(existingProduct);
+        Product savedProduct = productRepository.save(existingProduct);
+        hydrateCategoryName(savedProduct);
+        return savedProduct;
+    }
 
-	/**
-	 * Deletes a product by ID.
-	 *
-	 * @param id the product ID to delete
-	 */
-	public synchronized void deleteProduct(Long id) {
-		Product product = getProductById(id);
-		productList.remove(product);
-	}
+    /**
+     * Deletes a product by id.
+     *
+     * @param id product id
+     */
+    @Transactional
+    public void deleteProduct(Long id) {
+        Product product = getProductById(id);
+        productRepository.delete(product);
+    }
 
-	/**
-	 * Filters products by a selected criteria.
-	 *
-	 * @param filterType  the field to filter by: name, category, price, minPrice,
-	 *                    or maxPrice
-	 * @param filterValue the value used for filtering
-	 * @return the matching products
-	 * @throws IllegalArgumentException if the filter type or value is invalid
-	 */
-	public synchronized List<Product> filterProducts(String filterType, String filterValue) {
-		if (isBlank(filterType) || isBlank(filterValue)) {
-			throw new IllegalArgumentException("filterType and filterValue are required.");
-		}
+    /**
+     * Filters products using database-backed repository queries.
+     *
+     * @param filterType field to filter by
+     * @param filterValue filter value
+     * @return matching products
+     */
+    @Transactional(readOnly = true)
+    public List<Product> filterProducts(String filterType, String filterValue) {
+        if (isBlank(filterType) || isBlank(filterValue)) {
+            throw new IllegalArgumentException("filterType and filterValue are required.");
+        }
 
-		String normalizedType = filterType.trim().toLowerCase(Locale.ROOT);
-		String normalizedValue = filterValue.trim().toLowerCase(Locale.ROOT);
+        String normalizedType = filterType.trim().toLowerCase(Locale.ROOT);
 
-		return switch (normalizedType) {
-			case "name" -> productList.stream()
-					.filter(product -> product.getProductName().toLowerCase(Locale.ROOT).contains(normalizedValue))
-					.toList();
-			case "category" -> productList.stream()
-					.filter(product -> product.getCategory().toLowerCase(Locale.ROOT).contains(normalizedValue))
-					.toList();
-			case "price" -> filterProductWithMaxPrice(parsePrice(filterValue));
-			case "minprice" -> filterProductWithMinPrice(parsePrice(filterValue));
-			case "maxprice" -> filterProductWithMaxPrice(parsePrice(filterValue));
-			default -> throw new IllegalArgumentException(
-					"Unsupported filterType. Use name, category, price, minPrice, or maxPrice.");
-		};
-	}
+        List<Product> products = switch (normalizedType) {
+            case "name" -> productRepository.findByProductNameContainingIgnoreCase(filterValue.trim());
+            case "category" -> productRepository.findByCategory_NameContainingIgnoreCase(filterValue.trim());
+            case "price", "maxprice" -> productRepository.findByPriceLessThanEqual(parsePrice(filterValue));
+            case "minprice" -> productRepository.findByPriceGreaterThanEqual(parsePrice(filterValue));
+            default -> throw new IllegalArgumentException(
+                    "Unsupported filterType. Use name, category, price, minPrice, or maxPrice.");
+        };
+        products.forEach(this::hydrateCategoryName);
+        return products;
+    }
 
-	/**
-	 * Filters products with prices greater than or equal to the minimum price.
-	 *
-	 * @param minPrice the minimum price threshold
-	 * @return products with prices greater than or equal to minPrice
-	 * @throws IllegalArgumentException if minPrice is negative
-	 */
-	public synchronized List<Product> filterProductWithMinPrice(double minPrice) {
-		if (minPrice < 0) {
-			throw new IllegalArgumentException("Minimum price must be non-negative.");
-		}
-		return productList.stream()
-				.filter(product -> product.getPrice() >= minPrice)
-				.toList();
-	}
+    /**
+     * Finds products within a database price range.
+     *
+     * @param min minimum price
+     * @param max maximum price
+     * @return matching products
+     */
+    @Transactional(readOnly = true)
+    public List<Product> getProductsInPriceRange(double min, double max) {
+        if (min < 0 || max < 0) {
+            throw new IllegalArgumentException("Price range values must be non-negative.");
+        }
+        if (min > max) {
+            throw new IllegalArgumentException("Minimum price cannot be greater than maximum price.");
+        }
+        List<Product> products = productRepository.findProductsInPriceRange(min, max);
+        products.forEach(this::hydrateCategoryName);
+        return products;
+    }
 
-	/**
-	 * Filters products with prices less than or equal to the maximum price.
-	 *
-	 * @param maxPrice the maximum price threshold
-	 * @return products with prices less than or equal to maxPrice
-	 * @throws IllegalArgumentException if maxPrice is negative
-	 */
-	public synchronized List<Product> filterProductWithMaxPrice(double maxPrice) {
-		if (maxPrice < 0) {
-			throw new IllegalArgumentException("Maximum price must be non-negative.");
-		}
-		return productList.stream()
-				.filter(product -> product.getPrice() <= maxPrice)
-				.toList();
-	}
+    private Category resolveCategory(Product product) {
+        if (product.getCategory() != null && !isBlank(product.getCategory().getName())) {
+            return resolveCategoryName(product.getCategory().getName());
+        }
+        if (!isBlank(product.getCategoryName())) {
+            return resolveCategoryName(product.getCategoryName());
+        }
+        throw new IllegalArgumentException("Category is required.");
+    }
 
-	private void addSampleProduct(String name, String description, double price, String category, int stockQuantity,
-			String imageUrl) {
-		productList.add(new Product(nextId.getAndIncrement(), name, description, price, category, stockQuantity,
-				imageUrl));
-	}
+    private Category resolveCategoryName(Object value) {
+        String categoryName = asString(value, "category");
+        if (isBlank(categoryName)) {
+            throw new IllegalArgumentException("Category is required.");
+        }
+        return categoryRepository.findByNameIgnoreCase(categoryName.trim())
+                .orElseGet(() -> {
+                    Category newCategory = new Category();
+                    newCategory.setName(categoryName.trim());
+                    return categoryRepository.save(newCategory);
+                });
+    }
 
-	private void validateProduct(Product product) {
-		if (product == null) {
-			throw new IllegalArgumentException("Product data is required.");
-		}
-		if (isBlank(product.getProductName()) || product.getProductName().trim().length() < 2) {
-			throw new IllegalArgumentException("Product name is required and must contain at least 2 characters.");
-		}
-		if (product.getPrice() <= 0) {
-			throw new IllegalArgumentException("Product price must be a positive number.");
-		}
-		if (isBlank(product.getCategory())) {
-			throw new IllegalArgumentException("Product category is required.");
-		}
-		if (product.getStockQuantity() < 0) {
-			throw new IllegalArgumentException("Product stock quantity must be non-negative.");
-		}
-	}
+    private void validateProduct(Product product) {
+        if (product == null) {
+            throw new IllegalArgumentException("Product data is required.");
+        }
 
-	private double parsePrice(String value) {
-		try {
-			return Double.parseDouble(value);
-		} catch (NumberFormatException exception) {
-			throw new IllegalArgumentException("Price filter value must be a valid number.");
-		}
-	}
+        var violations = validator.validate(product);
+        if (!violations.isEmpty()) {
+            String message = violations.iterator().next().getMessage();
+            throw new IllegalArgumentException(message);
+        }
 
-	private String asString(Object value, String fieldName) {
-		if (value == null) {
-			return null;
-		}
-		if (!(value instanceof String stringValue)) {
-			throw new IllegalArgumentException(fieldName + " must be a string.");
-		}
-		return stringValue;
-	}
+        if (product.getStockQuantity() < 0) {
+            throw new IllegalArgumentException("Product stock quantity must be non-negative.");
+        }
+    }
 
-	private double asDouble(Object value, String fieldName) {
-		if (!(value instanceof Number numberValue)) {
-			throw new IllegalArgumentException(fieldName + " must be a number.");
-		}
-		return numberValue.doubleValue();
-	}
+    private double parsePrice(String value) {
+        try {
+            return Double.parseDouble(value);
+        } catch (NumberFormatException exception) {
+            throw new IllegalArgumentException("Price filter value must be a valid number.");
+        }
+    }
 
-	private int asInteger(Object value, String fieldName) {
-		if (!(value instanceof Number numberValue)) {
-			throw new IllegalArgumentException(fieldName + " must be a number.");
-		}
-		double doubleValue = numberValue.doubleValue();
-		int intValue = numberValue.intValue();
-		if (doubleValue != intValue) {
-			throw new IllegalArgumentException(fieldName + " must be a whole number.");
-		}
-		return intValue;
-	}
+    private String asString(Object value, String fieldName) {
+        if (value == null) {
+            return null;
+        }
+        if (!(value instanceof String stringValue)) {
+            throw new IllegalArgumentException(fieldName + " must be a string.");
+        }
+        return stringValue;
+    }
 
-	private boolean isBlank(String value) {
-		return value == null || value.trim().isEmpty();
-	}
+    private double asDouble(Object value, String fieldName) {
+        if (!(value instanceof Number numberValue)) {
+            throw new IllegalArgumentException(fieldName + " must be a number.");
+        }
+        return numberValue.doubleValue();
+    }
+
+    private int asInteger(Object value, String fieldName) {
+        if (!(value instanceof Number numberValue)) {
+            throw new IllegalArgumentException(fieldName + " must be a number.");
+        }
+        double doubleValue = numberValue.doubleValue();
+        int intValue = numberValue.intValue();
+        if (doubleValue != intValue) {
+            throw new IllegalArgumentException(fieldName + " must be a whole number.");
+        }
+        return intValue;
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
+    }
+
+    private void hydrateCategoryName(Product product) {
+        if (product != null && product.getCategory() != null) {
+            product.setCategoryName(product.getCategory().getName());
+        }
+    }
 }
