@@ -396,7 +396,7 @@ Add your successful browser fetch screenshot to the repository, then embed it he
 Example:
 
 ```md
-![Browser console successful fetch](path/to/your/browser-console-screenshot.png)
+![Browser console successful fetch](src/main/resources/static/database_schema/browser_console.png)
 ```
 
 ## Sample Requests and Responses
