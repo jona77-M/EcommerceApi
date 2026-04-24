@@ -110,6 +110,13 @@ public class GlobalExceptionHandler {
                                 path);
         }
 
+        /**
+         * Handles cases where a requested database entity does not exist.
+         *
+         * @param exception the thrown entity not found exception
+         * @param request   the current HTTP request
+         * @return a 404 response containing a standardized error body
+         */
         @ExceptionHandler(EntityNotFoundException.class)
         public ResponseEntity<ApiError> handleEntityNotFound(
                         EntityNotFoundException exception,
@@ -119,6 +126,13 @@ public class GlobalExceptionHandler {
                                                 request.getRequestURI()));
         }
 
+        /**
+         * Handles database constraint violations such as duplicate or invalid values.
+         *
+         * @param exception the thrown data integrity violation exception
+         * @param request   the current HTTP request
+         * @return a 400 response containing a standardized error body
+         */
         @ExceptionHandler(DataIntegrityViolationException.class)
         public ResponseEntity<ApiError> handleDataIntegrityViolation(
                         DataIntegrityViolationException exception,
