@@ -19,6 +19,8 @@ import jakarta.validation.Validator;
 
 /**
  * Service class for product-related operations backed by Spring Data JPA.
+ *
+ * @author Eulin Malobago
  */
 @Service
 public class ProductService {
