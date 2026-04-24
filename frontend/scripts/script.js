@@ -908,7 +908,7 @@ if (paymentForm) {
         getErrorElement(input).textContent = "";
     }
 
-    paymentForm.addEventListener("submit", function(event) {
+    paymentForm.addEventListener("submit", async function(event) {
         event.preventDefault();
 
         let isValid = true;
@@ -996,6 +996,28 @@ if (paymentForm) {
                 },
                 paymentMethod: paymentMethod ? paymentMethod.value : "card"
             });
+
+            const orderResponse = await fetch("http://localhost:8080/api/v1/orders", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    customerName: fullNameInput.value.trim(),
+                    items: cart.map(function(item) {
+                        return {
+                            productId: item.id,
+                            quantity: item.quantity
+                        };
+                    })
+                })
+            });
+
+            if (!orderResponse.ok) {
+                alert("Order was not saved. Please try again.");
+                return;
+            }
+
             const updatedOrderHistory = [newOrder].concat(loadOrderHistory());
 
             saveOrderHistory(updatedOrderHistory);
