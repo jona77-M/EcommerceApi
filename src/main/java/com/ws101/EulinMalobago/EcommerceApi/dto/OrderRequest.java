@@ -2,6 +2,11 @@ package com.ws101.EulinMalobago.EcommerceApi.dto;
 
 import java.util.List;
 
+/**
+ * @author Eulin Malobago
+ * this orderRequest
+ */
+
 public class OrderRequest {
     private String customerName;
     private List<OrderItemRequest> items;

@@ -9,6 +9,11 @@ import com.ws101.EulinMalobago.EcommerceApi.dto.OrderRequest;
 import com.ws101.EulinMalobago.EcommerceApi.model.CustomerOrder;
 import com.ws101.EulinMalobago.EcommerceApi.service.OrderService;
 
+/**
+ * @author Eulin Malobago
+ * this orderController 
+ */
+
 @RestController
 @RequestMapping("/api/v1/orders")
 public class OrderController {
