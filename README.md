@@ -323,6 +323,45 @@ Each product contains the following fields:
 | `stockQuantity` | `int`     | Required, must be 0 or greater |
 | `imageUrl`      | `String`  | Optional                       |
 
+## Database Schema
+
+The application now uses a relational database with four main tables:
+
+- `categories` stores reusable product categories such as Accessories, Mobile, and Electronics.
+- `products` stores catalog items and includes a `category_id` foreign key pointing to `categories`.
+- `customer_orders` stores each placed order with the customer name and order timestamp.
+- `order_items` stores the individual line items for each order and links both the parent order and the purchased product.
+
+Relationship summary:
+
+- One category can have many products.
+- One product belongs to one category.
+- One customer order can have many order items.
+- One order item belongs to one customer order.
+- Many order items can reference the same product.
+
+### Database Relationship Diagram
+
+![Database relationship diagram](src/main/resources/static/database_schema/db%20diagram.png)
+
+### Database Table Screenshots
+
+#### Categories Table
+
+![Categories table](src/main/resources/static/database_schema/category.png)
+
+#### Products Table
+
+![Products table](src/main/resources/static/database_schema/products.png)
+
+#### Customer Orders Table
+
+![Customer orders table](src/main/resources/static/database_schema/customer_order.png)
+
+#### Order Items Table
+
+![Order items table](src/main/resources/static/database_schema/order_items.png)
+
 ## API Endpoint Reference
 
 | Method | Path | Description | Expected Response |
@@ -334,6 +373,31 @@ Each product contains the following fields:
 | `PUT` | `/api/v1/products/{id}` | Replace an existing product | `200 OK` with updated product JSON |
 | `PATCH` | `/api/v1/products/{id}` | Partially update selected product fields | `200 OK` with updated product JSON |
 | `DELETE` | `/api/v1/products/{id}` | Delete a product by ID | `204 No Content` |
+
+## API Endpoints
+
+These are the database-backed endpoints currently used by the project:
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/api/v1/products` | Returns all products from the database |
+| `GET` | `/api/v1/products/{id}` | Returns one product by ID |
+| `GET` | `/api/v1/products/filter?filterType=...&filterValue=...` | Filters products using database queries |
+| `POST` | `/api/v1/products` | Creates a new product record |
+| `PUT` | `/api/v1/products/{id}` | Replaces an existing product record |
+| `PATCH` | `/api/v1/products/{id}` | Partially updates an existing product record |
+| `DELETE` | `/api/v1/products/{id}` | Deletes a product record |
+| `POST` | `/api/v1/orders` | Creates a customer order with related order items |
+
+### Browser Console Fetch Screenshot
+
+Add your successful browser fetch screenshot to the repository, then embed it here using the same format as the images above.
+
+Example:
+
+```md
+![Browser console successful fetch](path/to/your/browser-console-screenshot.png)
+```
 
 ## Sample Requests and Responses
 

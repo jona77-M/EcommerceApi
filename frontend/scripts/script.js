@@ -388,6 +388,12 @@ function mapApiProductToProduct(productData) {
 
 /**
  * Fetches products from the backend API and returns a normalized product list.
+ *
+ * Try/catch logic:
+ * The try block sends the API request, checks HTTP status codes, and converts the
+ * JSON response into frontend Product objects. The catch block handles network
+ * failures, CORS issues, and thrown status errors so the page can fail gracefully
+ * by logging the problem and returning an empty list instead of crashing.
  */
 async function fetchProducts() {
     try {
@@ -1084,24 +1090,34 @@ if (paymentForm) {
                 paymentMethod: paymentMethod ? paymentMethod.value : "card"
             });
 
-            const orderResponse = await fetch("http://localhost:8080/api/v1/orders", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    customerName: fullNameInput.value.trim(),
-                    items: cart.map(function(item) {
-                        return {
-                            productId: item.id,
-                            quantity: item.quantity
-                        };
+            try {
+                // The try block sends the checkout request and stops the success flow
+                // if the backend returns a failed HTTP response.
+                const orderResponse = await fetch("http://localhost:8080/api/v1/orders", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        customerName: fullNameInput.value.trim(),
+                        items: cart.map(function(item) {
+                            return {
+                                productId: item.id,
+                                quantity: item.quantity
+                            };
+                        })
                     })
-                })
-            });
+                });
 
-            if (!orderResponse.ok) {
-                alert("Order was not saved. Please try again.");
+                if (!orderResponse.ok) {
+                    alert("Order was not saved. Please try again.");
+                    return;
+                }
+            } catch (error) {
+                // The catch block handles network or CORS failures so the user gets
+                // feedback instead of the checkout silently failing.
+                console.error("createOrder error:", error.message);
+                alert("Order could not be submitted. Please check the backend connection and try again.");
                 return;
             }
 

@@ -32,7 +32,6 @@ import jakarta.validation.Valid;
  *         operations, and returns appropriate HTTP responses for each endpoint.
  */
 @RestController
-// @CrossOrigin(origins = "*")
 @RequestMapping("/api/v1/products")
 public class ProductController {
 
